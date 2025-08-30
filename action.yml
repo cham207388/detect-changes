@@ -1,0 +1,46 @@
+name: 'Detect Changes in Mono-Repo'
+description: 'Detects changes in multiple modules within a mono-repo by comparing folder hashes between commits'
+author: 'Alhagie Bai Cham'
+
+inputs:
+  modules:
+    description: 'Space-separated list of modules to check for changes'
+    required: true
+    default: ''
+  semantic-version:
+    description: 'Semantic version from previous step'
+    required: true
+
+outputs:
+  changes:
+    description: 'JSON object containing change status for each module'
+    value: ${{ steps.detect.outputs.changes }}
+  semantic-version:
+    description: 'Pass-through semantic version'
+    value: ${{ steps.detect.outputs.semantic-version }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Run change detection
+      id: detect
+      shell: bash
+      env:
+        GITHUB_EVENT_BEFORE: ${{ github.event.before }}
+        GITHUB_SHA: ${{ github.sha }}
+        GITHUB_EVENT_NAME: ${{ github.event_name }}
+        GITHUB_EVENT_PATH: ${{ github.event_path }}
+      run: |
+        python "${{ github.action_path }}/detect_changes.py" \
+          --modules "${{ inputs.modules }}" \
+          --semantic-version "${{ inputs.semantic-version }}"
