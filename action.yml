@@ -7,17 +7,11 @@ inputs:
     description: 'Space-separated list of modules to check for changes'
     required: true
     default: ''
-  semantic-version:
-    description: 'Semantic version from previous step'
-    required: true
 
 outputs:
   changes:
     description: 'JSON object containing change status for each module'
     value: ${{ steps.detect.outputs.changes }}
-  semantic-version:
-    description: 'Pass-through semantic version'
-    value: ${{ steps.detect.outputs.semantic-version }}
 
 runs:
   using: "composite"
@@ -42,5 +36,4 @@ runs:
         GITHUB_EVENT_PATH: ${{ github.event_path }}
       run: |
         python "${{ github.action_path }}/detect_changes.py" \
-          --modules "${{ inputs.modules }}" \
-          --semantic-version "${{ inputs.semantic-version }}"
+          --modules "${{ inputs.modules }}"

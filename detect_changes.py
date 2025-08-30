@@ -164,7 +164,7 @@ class ChangeDetector:
         
         return changes
     
-    def output_github_actions(self, changes: Dict[str, bool], semantic_version: str):
+    def output_github_actions(self, changes: Dict[str, bool]):
         """Output GitHub Actions compatible outputs"""
         github_output = os.environ.get('GITHUB_OUTPUT')
         
@@ -179,7 +179,6 @@ class ChangeDetector:
                 # Output JSON object with all changes
                 changes_json = json.dumps(changes)
                 f.write(f"changes={changes_json}\n")
-                f.write(f"semantic-version={semantic_version}\n")
         else:
             # Fallback to deprecated set-output for compatibility
             for module, changed in changes.items():
@@ -188,7 +187,6 @@ class ChangeDetector:
             
             changes_json = json.dumps(changes)
             print(f"::set-output name=changes::{changes_json}")
-            print(f"::set-output name=semantic-version::{semantic_version}")
 
 
 def parse_modules_string(modules_str: str) -> List[str]:
@@ -207,8 +205,6 @@ def main():
     parser = argparse.ArgumentParser(description='Detect changes in mono-repo modules')
     parser.add_argument('--modules', required=True,
                        help='Space-separated list of modules to check for changes (e.g., "service-a service-b")')
-    parser.add_argument('--semantic-version', required=True,
-                       help='Semantic version from previous step')
     
     args = parser.parse_args()
     
@@ -220,7 +216,6 @@ def main():
         sys.exit(1)
     
     print(f"Checking modules: {modules_list}")
-    print(f"Semantic version: {args.semantic_version}")
     
     # Initialize detector
     detector = ChangeDetector(modules=modules_list)
@@ -229,7 +224,7 @@ def main():
     changes = detector.detect_changes()
     
     # Output results for GitHub Actions
-    detector.output_github_actions(changes, args.semantic_version)
+    detector.output_github_actions(changes)
     
     # Print summary
     print("\nChange Detection Summary:")
