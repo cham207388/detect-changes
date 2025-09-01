@@ -35,6 +35,7 @@ jobs:
         with:
           modules: "frontend backend api"
           python-version: "3.11"
+          base-path: ""
 
       - name: Use change detection results
         run: |
