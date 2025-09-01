@@ -7,6 +7,10 @@ inputs:
     description: 'Space-separated list of modules to check for changes'
     required: true
     default: ''
+  base-path:
+    description: 'Base path where modules are located (e.g., "modules" for modules/service-a)'
+    required: false
+    default: ''
   python-version:
     description: 'Python version to use'
     required: false
@@ -40,4 +44,5 @@ runs:
         GITHUB_EVENT_PATH: ${{ github.event_path }}
       run: |
         python "${{ github.action_path }}/detect_changes.py" \
-          --modules "${{ inputs.modules }}"
+          --modules "${{ inputs.modules }}" \
+          --base-path "${{ inputs.base-path }}"
