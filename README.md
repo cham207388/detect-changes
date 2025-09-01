@@ -31,11 +31,11 @@ jobs:
         
       - name: Detect Changes
         id: detect
-        uses: cham207388/detect-changes@v1
+        uses: cham207388/detect-changes@v5
         with:
           modules: "frontend backend api"
-          python-version: "3.11"
-          base-path: ""
+          python-version: "3.11" # optional, default is 3.11
+          # base-path: "" # optional, default is empty
 
       - name: Use change detection results
         run: |
