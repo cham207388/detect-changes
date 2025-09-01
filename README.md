@@ -5,12 +5,11 @@ A GitHub Action that detects changes in multiple modules within a mono-repo by c
 ## Inputs
 
 - `modules` (required): Space-separated list of modules to check for changes
-- `semantic-version` (required): Semantic version
+- `python-version` (required): Python version to use
 
 ## Outputs
 
 - `changes`: JSON object containing change status for each module
-- `semantic-version`: Pass-through semantic version
 
 ## How it works
 
@@ -35,12 +34,11 @@ jobs:
         uses: cham207388/detect-changes@v1
         with:
           modules: "frontend backend api"
-          semantic-version: "1.0.0"
-          
+          python-version: "3.11"
+
       - name: Use change detection results
         run: |
           echo "Changes detected: ${{ steps.detect.outputs.changes }}"
-          echo "Semantic version: ${{ steps.detect.outputs.semantic-version }}"
 ```
 
 ## Author
