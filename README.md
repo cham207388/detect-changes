@@ -5,7 +5,9 @@ A GitHub Action that detects changes in multiple modules within a mono-repo by c
 ## Inputs
 
 - `modules` (required): Space-separated list of modules to check for changes
-- `python-version` (required): Python version to use
+- `python-version` (optional): Python version to use
+- `base-path` (optional): Base path where modules are located (e.g., "modules" for modules/service-a)
+- `setup-python` (optional): Whether to setup Python (default is true)
 
 ## Outputs
 
@@ -34,7 +36,7 @@ jobs:
         uses: cham207388/detect-changes@v5
         with:
           modules: "frontend backend api"
-          python-version: "3.11" # optional, default is 3.11
+          # python-version: "3.11" # optional, default is 3.11
           # base-path: "" # optional, default is empty
           # setup-python: "true" # optional, default is true
       - name: Use change detection results
