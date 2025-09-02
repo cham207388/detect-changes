@@ -124,6 +124,26 @@ class ChangeDetector:
                 print(f"Error extracting {full_module_path}: {stderr.decode() if stderr else 'Unknown error'}")
                 return False
             
+            # Handle the case where git archive creates a nested directory structure
+            # When base_path is used, git archive creates services/module-name structure
+            # We need to move the contents up one level if needed
+            if self.base_path:
+                nested_path = os.path.join(extract_dir, self.base_path, module)
+                if os.path.exists(nested_path):
+                    # Move contents from nested_path to extract_dir
+                    for item in os.listdir(nested_path):
+                        src = os.path.join(nested_path, item)
+                        dst = os.path.join(extract_dir, item)
+                        if os.path.exists(dst):
+                            if os.path.isdir(dst):
+                                shutil.rmtree(dst)
+                            else:
+                                os.remove(dst)
+                        shutil.move(src, dst)
+                    
+                    # Clean up the nested directory structure
+                    shutil.rmtree(os.path.join(extract_dir, self.base_path), ignore_errors=True)
+            
             return True
             
         except Exception as e:
@@ -148,9 +168,17 @@ class ChangeDetector:
             base_module_dir = base_dir / module
             head_module_dir = head_dir / module
             
+            print(f"\nProcessing module: {module}")
+            print(f"  Full module path: {self._get_full_module_path(module)}")
+            print(f"  Base module dir: {base_module_dir}")
+            print(f"  Head module dir: {head_module_dir}")
+            
             # Extract base and head versions
             base_extracted = self._extract_module_tree(base_sha, module, str(base_module_dir))
             head_extracted = self._extract_module_tree(head_sha, module, str(head_module_dir))
+            
+            print(f"  Base extracted: {base_extracted}")
+            print(f"  Head extracted: {head_extracted}")
             
             if not head_extracted:
                 # Module doesn't exist in head commit
@@ -166,7 +194,17 @@ class ChangeDetector:
             has_changed = base_hash != head_hash
             changes[module] = has_changed
             
-            print(f"Module {module}: base_hash={base_hash[:8]}..., head_hash={head_hash[:8]}..., changed={has_changed}")
+            print(f"  Base hash: {base_hash[:8] if base_hash else 'N/A'}...")
+            print(f"  Head hash: {head_hash[:8] if head_hash else 'N/A'}...")
+            print(f"  Changed: {has_changed}")
+            
+            # Debug: List files in extracted directories
+            if base_extracted:
+                base_files = list(Path(base_module_dir).rglob('*'))
+                print(f"  Base files count: {len(base_files)}")
+            if head_extracted:
+                head_files = list(Path(head_module_dir).rglob('*'))
+                print(f"  Head files count: {len(head_files)}")
         
         # Cleanup
         shutil.rmtree(base_dir, ignore_errors=True)
