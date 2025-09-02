@@ -32,13 +32,6 @@ runs:
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
-    
-    # - name: Set up Python
-    #   if: ${{ inputs.setup-python == 'true' }}
-    #   uses: actions/setup-python@v4
-    #   with:
-    #     python-version: '${{ inputs.python-version }}'
-    
     - name: Run change detection
       id: detect
       shell: bash
