@@ -9,9 +9,8 @@ from typing import Dict, List, Optional, Tuple
 
 
 class ChangeDetector:
-    def __init__(self, modules: List[str], base_path: str = ""):
+    def __init__(self, modules: List[str]):
         self.modules = modules
-        self.base_path = base_path.strip()
         
     def _get_commit_shas(self) -> Tuple[Optional[str], str]:
         """Determine base and head commit SHAs based on event type"""
@@ -76,12 +75,6 @@ class ChangeDetector:
         
         return hasher.hexdigest()
     
-    def _get_full_module_path(self, module: str) -> str:
-        """Get the full path to a module, considering base_path"""
-        if self.base_path:
-            return f"{self.base_path}/{module}"
-        return module
-    
     def _extract_module_tree(self, commit_sha: str, module: str, extract_dir: str) -> bool:
         """Extract module files from a specific commit"""
         if not commit_sha:
@@ -90,22 +83,19 @@ class ChangeDetector:
         try:
             os.makedirs(extract_dir, exist_ok=True)
             
-            # Get full module path
-            full_module_path = self._get_full_module_path(module)
-            
             # Check if the module exists in the commit
             result = subprocess.run(
-                ['git', 'ls-tree', commit_sha, full_module_path],
+                ['git', 'ls-tree', commit_sha, module],
                 capture_output=True, text=True, check=False
             )
             
             if result.returncode != 0:
-                print(f"Module {full_module_path} not found in commit {commit_sha}")
+                print(f"Module {module} not found in commit {commit_sha}")
                 return False
             
             # Extract using git archive and tar
             git_process = subprocess.Popen(
-                ['git', 'archive', commit_sha, full_module_path],
+                ['git', 'archive', commit_sha, module],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE
             )
@@ -121,13 +111,13 @@ class ChangeDetector:
             stdout, stderr = tar_process.communicate()
             
             if tar_process.returncode != 0:
-                print(f"Error extracting {full_module_path}: {stderr.decode() if stderr else 'Unknown error'}")
+                print(f"Error extracting {module}: {stderr.decode() if stderr else 'Unknown error'}")
                 return False
             
             return True
             
         except Exception as e:
-            print(f"Error extracting {full_module_path} from {commit_sha}: {e}")
+            print(f"Error extracting {module} from {commit_sha}: {e}")
             return False
     
     def detect_changes(self) -> Dict[str, bool]:
@@ -215,8 +205,6 @@ def main():
     parser = argparse.ArgumentParser(description='Detect changes in mono-repo modules')
     parser.add_argument('--modules', required=True,
                        help='Space-separated list of modules to check for changes (e.g., "service-a service-b")')
-    parser.add_argument('--base-path', required=False, default='',
-                       help='Base path where modules are located (e.g., "services" for services/service-a)')
     
     args = parser.parse_args()
     
@@ -228,11 +216,9 @@ def main():
         sys.exit(1)
     
     print(f"Checking modules: {modules_list}")
-    if args.base_path:
-        print(f"Base path: {args.base_path}")
     
     # Initialize detector
-    detector = ChangeDetector(modules=modules_list, base_path=args.base_path)
+    detector = ChangeDetector(modules=modules_list)
     
     # Detect changes
     changes = detector.detect_changes()

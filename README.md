@@ -5,7 +5,6 @@ A GitHub Action that detects changes in multiple modules within a mono-repo by c
 ## Inputs
 
 - `modules` (required): Space-separated list of modules to check for changes
-- `base-path` (optional): Base path where modules are located (e.g., "modules" for modules/service-a)
 
 ## Outputs
 
