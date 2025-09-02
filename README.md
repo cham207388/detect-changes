@@ -36,7 +36,7 @@ jobs:
           modules: "frontend backend api"
           python-version: "3.11" # optional, default is 3.11
           # base-path: "" # optional, default is empty
-
+          # setup-python: "true" # optional, default is true
       - name: Use change detection results
         run: |
           echo "Changes detected: ${{ steps.detect.outputs.changes }}"

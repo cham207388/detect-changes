@@ -15,6 +15,10 @@ inputs:
     description: 'Python version to use'
     required: false
     default: '3.11'
+  setup-python:
+    description: 'Whether to setup Python'
+    required: false
+    default: 'true'
 
 outputs:
   changes:
@@ -30,6 +34,7 @@ runs:
         fetch-depth: 0
     
     - name: Set up Python
+      if: ${{ inputs.setup-python == 'true' }}
       uses: actions/setup-python@v4
       with:
         python-version: '${{ inputs.python-version }}'
