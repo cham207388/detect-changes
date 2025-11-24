@@ -39,11 +39,30 @@ jobs:
         id: detect
         uses: cham207388/detect-changes@v1
         with:
-          modules: "frontend backend api"
+          modules: "service-a service-b service-c"
 
       - name: Use change detection results
         run: |
           echo "Changes detected: ${{ steps.detect.outputs.changes }}"
+```
+
+```json
+//  example output of the changes object
+{
+  "service-a": true,
+  "service-b": false,
+  "service-c": true
+}
+```
+
+```yaml
+  test-service-a:
+    name: Test service-a
+    needs: detect-changes
+    uses: ./.github/workflows/test.yml
+    with:
+      working-dir: service-a
+      changed: ${{ fromJson(needs.detect-changes.outputs.changes)['service-a'] }}
 ```
 
 ## Author
