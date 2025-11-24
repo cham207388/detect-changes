@@ -13,6 +13,7 @@ A GitHub Action that detects changes in multiple modules within a mono-repo by c
 ## How it works
 
 This action:
+
 1. Checks out the repository with full history (`fetch-depth: 0`)
 2. Sets up Python 3.11
 3. Runs a Python script that compares folder hashes between commits to detect changes
@@ -36,7 +37,7 @@ jobs:
         
       - name: Detect Changes
         id: detect
-        uses: cham207388/detect-changes@v5
+        uses: cham207388/detect-changes@v1
         with:
           modules: "frontend backend api"
 
